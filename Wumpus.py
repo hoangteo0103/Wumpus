@@ -21,3 +21,6 @@ class Wumpus(pygame.sprite.Sprite):
 
 	def update(self):
 		pass
+
+	def setTransparency(self, val):
+		self.image.set_alpha(val)

@@ -22,6 +22,7 @@ class Game:
 		self.gridLeftBound = int(setting.WIDTH / 2 - self.nCol * setting.TILE_SIZE / 2)
 		self.gridBottomBound = self.gridTopBound + self.nRow * setting.TILE_SIZE
 		self.gridRightBound = self.gridLeftBound + self.nCol * setting.TILE_SIZE
+		self.moveDir = ((0, -1), (0, 1), (-1, 0), (1, 0))
 		
 		self.initData()
 
@@ -46,7 +47,7 @@ class Game:
 	def initData(self):
 		self.totalPoint = 0
 		self.font = pygame.font.Font('fonts/Roboto-Regular.ttf', 20)
-		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridRightBound, self.gridTopBound)
+		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridRightBound, self.gridTopBound - setting.TILE_SIZE)
 		for i in range(self.nRow):
 			for j in range(self.nCol):
 				if len(self.board[i][j]) == 1:
@@ -79,6 +80,13 @@ class Game:
 			self.initAgentRow, self.initAgentCol)
 		self.allSprites.add(self.agent)
 		self.allSprites.add(Exit.Exit(self.nRow, self.nCol, self.nRow, 0))
+
+		self.perceptSprite = pygame.sprite.Group()
+		self.wumpusPercept = Wumpus.Wumpus(self.nRow, self.nCol, -1, self.nCol - 2)
+		self.perceptSprite.add(self.wumpusPercept)
+
+		self.pitPercept = Pit.Pit(self.nRow, self.nCol, -1, self.nCol - 1)
+		self.perceptSprite.add(self.pitPercept)
 
 		self.bullet = pygame.sprite.Group()
 
@@ -133,6 +141,30 @@ class Game:
 			self.board[cell[0]][cell[1]] = '0'
 			self.spriteBoard[cell[0]][cell[1]].kill()
 
+	def checkNearWumpus(self):
+		for dirRow, dirCol in self.moveDir:
+			u = self.agent.curRow + dirRow
+			v = self.agent.curCol + dirCol
+			if u < 0 or u >= self.nRow:
+				continue
+			if v < 0 or v >= self.nCol:
+				continue
+			if self.board[u][v] == 'W':
+				return True
+		return False
+
+	def checkNearPit(self):
+		for dirRow, dirCol in self.moveDir:
+			u = self.agent.curRow + dirRow
+			v = self.agent.curCol + dirCol
+			if u < 0 or u >= self.nRow:
+				continue
+			if v < 0 or v >= self.nCol:
+				continue
+			if self.board[u][v] == 'P':
+				return True
+		return False
+
 	def events(self):
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -153,7 +185,18 @@ class Game:
 		self.allSprites.update()
 		self.bullet.update()
 
-		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridRightBound, self.gridTopBound)
+		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridRightBound, self.gridTopBound - setting.TILE_SIZE)
+
+		if self.checkNearPit():
+			self.pitPercept.setTransparency(setting.HIGH_OPACITY)
+		else:
+			self.pitPercept.setTransparency(setting.LOW_OPACITY)
+
+		if self.checkNearWumpus():
+			self.wumpusPercept.setTransparency(setting.HIGH_OPACITY)
+		else:
+			self.wumpusPercept.setTransparency(setting.LOW_OPACITY)
+
 
 		if self.board[self.agent.curRow][self.agent.curCol] == 'G':
 			print('pick up gold chess !!')
@@ -178,6 +221,7 @@ class Game:
 		self.bullet.draw(self.screen)
 		self.drawGrid()
 		self.pointBox.draw(self.screen)
+		self.perceptSprite.draw(self.screen)
 		pygame.display.flip()
 
 	def quit(self):
@@ -196,6 +240,10 @@ board = [['0', '0', '0', '0', '0', '0'],
 		 ['0', 'S', '0', 'B', '0', '0'],
 		 ['0', 'A', 'B', 'P', 'B', '0'],
 		 ['0', '0', '0', '0', '0', '0']]
+
+# board = [['0', '0', '0'],
+# 		 ['A', '0', '0'],
+# 		 ['0', '0', '0']]
 
 game = Game(board)
 game.run()
