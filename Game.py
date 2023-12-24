@@ -6,6 +6,7 @@ import Wumpus
 import Pit
 import Gold
 import Bullet
+import Exit
 
 class Game:
 	def __init__(self, board):
@@ -73,6 +74,8 @@ class Game:
 			self.nRow, self.nCol,
 			self.initAgentRow, self.initAgentCol)
 		self.allSprites.add(self.agent)
+		self.allSprites.add(Exit.Exit(self.nRow, self.nCol, self.nRow, 0))
+
 
 		self.bullet = pygame.sprite.Group()
 
@@ -98,6 +101,7 @@ class Game:
 		if self.agent.curRow == self.nRow - 1 and self.agent.curCol == 0 and self.agent.faceDirection == 2:
 			print("Climbed out")
 			self.totalPoint += setting.MOVE_COST
+			self.totalPoint += setting.CLIMB_COST
 			self.quit()
 			return
 
@@ -110,12 +114,12 @@ class Game:
 			self.spriteBoard[self.agent.curRow][self.agent.curCol].kill()
 
 		if self.board[self.agent.curRow][self.agent.curCol] == 'W':
-			print("DIE !!")
+			print("killed by wumpus !!")
 			self.totalPoint += setting.DIE_COST
 			self.quit()
 
 		if self.board[self.agent.curRow][self.agent.curCol] == 'P':
-			print("DIE !!")
+			print("killed by pit !!")
 			self.totalPoint += setting.DIE_COST
 			self.quit()
 
