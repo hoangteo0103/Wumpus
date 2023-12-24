@@ -7,11 +7,13 @@ import Pit
 import Gold
 import Bullet
 import Exit
+import TextBox
 
 class Game:
 	def __init__(self, board):
 		pygame.init()
 		self.screen = pygame.display.set_mode((setting.WIDTH, setting.HEIGHT))
+		pygame.display.set_caption('Wumpus project - SID: 21125020 - 21125161 - 21125027 - 21125171')
 		self.clock = pygame.time.Clock()
 		self.nRow = len(board)
 		self.nCol = len(board[0])
@@ -43,6 +45,8 @@ class Game:
 
 	def initData(self):
 		self.totalPoint = 0
+		self.font = pygame.font.Font('fonts/Roboto-Regular.ttf', 20)
+		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridRightBound, self.gridTopBound)
 		for i in range(self.nRow):
 			for j in range(self.nCol):
 				if len(self.board[i][j]) == 1:
@@ -76,7 +80,6 @@ class Game:
 		self.allSprites.add(self.agent)
 		self.allSprites.add(Exit.Exit(self.nRow, self.nCol, self.nRow, 0))
 
-
 		self.bullet = pygame.sprite.Group()
 
 
@@ -108,20 +111,16 @@ class Game:
 		if self.agent.moveForward():
 			self.totalPoint += setting.MOVE_COST
 
-		if self.board[self.agent.curRow][self.agent.curCol] == 'G':
-			self.totalPoint += setting.CHESS_COST
-			self.board[self.agent.curRow][self.agent.curCol] = '0'
-			self.spriteBoard[self.agent.curRow][self.agent.curCol].kill()
-
-		if self.board[self.agent.curRow][self.agent.curCol] == 'W':
-			print("killed by wumpus !!")
-			self.totalPoint += setting.DIE_COST
+	def agentMoveBackward(self):
+		if self.agent.curRow == self.nRow - 1 and self.agent.curCol == 0 and self.agent.faceDirection == 0:
+			print("Climbed out")
+			self.totalPoint += setting.MOVE_COST
+			self.totalPoint += setting.CLIMB_COST
 			self.quit()
+			return
 
-		if self.board[self.agent.curRow][self.agent.curCol] == 'P':
-			print("killed by pit !!")
-			self.totalPoint += setting.DIE_COST
-			self.quit()
+		if self.agent.moveBackward():
+			self.totalPoint += setting.MOVE_COST
 
 	def agentShot(self):
 		print("shot")
@@ -145,6 +144,8 @@ class Game:
 					self.agentRotateRight()
 				elif event.key == pygame.K_UP:
 					self.agentMoveForward()
+				elif event.key == pygame.K_DOWN:
+					self.agentMoveBackward()
 				elif event.key == pygame.K_x:
 					self.agentShot()
 
@@ -152,11 +153,31 @@ class Game:
 		self.allSprites.update()
 		self.bullet.update()
 
+		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridRightBound, self.gridTopBound)
+
+		if self.board[self.agent.curRow][self.agent.curCol] == 'G':
+			print('pick up gold chess !!')
+			self.totalPoint += setting.CHESS_COST
+			self.board[self.agent.curRow][self.agent.curCol] = '0'
+			self.spriteBoard[self.agent.curRow][self.agent.curCol].kill()
+
+		if self.board[self.agent.curRow][self.agent.curCol] == 'W':
+			print("killed by wumpus !!")
+			self.totalPoint += setting.DIE_COST
+			self.quit()
+
+		if self.board[self.agent.curRow][self.agent.curCol] == 'P':
+			print("killed by pit !!")
+			self.totalPoint += setting.DIE_COST
+			self.quit()
+
 	def draw(self):
+		# print("current points:", self.totalPoint)
 		self.screen.fill(setting.BACKGROUND_COLOR)
 		self.allSprites.draw(self.screen)
 		self.bullet.draw(self.screen)
 		self.drawGrid()
+		self.pointBox.draw(self.screen)
 		pygame.display.flip()
 
 	def quit(self):

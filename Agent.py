@@ -56,6 +56,30 @@ class Agent(pygame.sprite.Sprite):
 				self.curCol -= 1
 		return True
 
+	def moveBackward(self):
+		print("agent.moveBackward")
+		if self.faceDirection == 2:
+			if self.curRow == 0:
+				return False
+			else:
+				self.curRow -= 1
+		elif self.faceDirection == 3:
+			if self.curCol == self.nCol - 1:
+				return False
+			else:
+				self.curCol += 1
+		elif self.faceDirection == 0:
+			if self.curRow == self.nRow - 1:
+				return False
+			else:
+				self.curRow += 1
+		else:
+			if self.curCol == 0:
+				return False
+			else:
+				self.curCol -= 1
+		return True
+
 	def rotateLeft(self):
 		print("agent.rotateLeft")
 		self.image = pygame.transform.rotate(self.image, 90)
