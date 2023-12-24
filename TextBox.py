@@ -6,7 +6,7 @@ class TextBox(pygame.sprite.Sprite):
 		self.text = font.render(str, True, strColor, backColor)
 		self.textRect = self.text.get_rect()
 		self.textRect.bottom = corY
-		self.textRect.right = corX
+		self.textRect.left = corX
 
 	def draw(self, screen):
 		screen.blit(self.text, self.textRect)		

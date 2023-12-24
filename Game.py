@@ -8,6 +8,7 @@ import Gold
 import Bullet
 import Exit
 import TextBox
+import Sensor
 
 class Game:
 	def __init__(self, board):
@@ -47,7 +48,8 @@ class Game:
 	def initData(self):
 		self.totalPoint = 0
 		self.font = pygame.font.Font('fonts/Roboto-Regular.ttf', 20)
-		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridRightBound, self.gridTopBound - setting.TILE_SIZE)
+		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridLeftBound, self.gridTopBound - setting.TILE_SIZE)
+		
 		for i in range(self.nRow):
 			for j in range(self.nCol):
 				if len(self.board[i][j]) == 1:
@@ -82,11 +84,13 @@ class Game:
 		self.allSprites.add(Exit.Exit(self.nRow, self.nCol, self.nRow, 0))
 
 		self.perceptSprite = pygame.sprite.Group()
-		self.wumpusPercept = Wumpus.Wumpus(self.nRow, self.nCol, -1, self.nCol - 2)
+		self.wumpusPercept = Wumpus.Wumpus(self.nRow, self.nCol, -1, 1)
 		self.perceptSprite.add(self.wumpusPercept)
 
-		self.pitPercept = Pit.Pit(self.nRow, self.nCol, -1, self.nCol - 1)
+		self.pitPercept = Pit.Pit(self.nRow, self.nCol, -1, 2)
 		self.perceptSprite.add(self.pitPercept)
+
+		self.perceptSprite.add(Sensor.Sensor(self.nRow, self.nCol, -1, 0))
 
 		self.bullet = pygame.sprite.Group()
 
@@ -185,7 +189,7 @@ class Game:
 		self.allSprites.update()
 		self.bullet.update()
 
-		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridRightBound, self.gridTopBound - setting.TILE_SIZE)
+		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridLeftBound, self.gridTopBound - setting.TILE_SIZE)
 
 		if self.checkNearPit():
 			self.pitPercept.setTransparency(setting.HIGH_OPACITY)
@@ -233,6 +237,15 @@ class Game:
 
 		for y in range(self.gridTopBound, self.gridBottomBound + 1, setting.TILE_SIZE):
 			pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound, y), (self.gridRightBound, y))
+
+		pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound, self.gridTopBound - setting.TILE_SIZE),
+													 (self.gridLeftBound + setting.TILE_SIZE * 3, self.gridTopBound - setting.TILE_SIZE))
+		pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound, self.gridTopBound - setting.TILE_SIZE),
+													 (self.gridLeftBound, self.gridTopBound))
+		pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound + setting.TILE_SIZE, self.gridTopBound - setting.TILE_SIZE),
+													 (self.gridLeftBound + setting.TILE_SIZE, self.gridTopBound))
+		pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound + setting.TILE_SIZE * 3, self.gridTopBound - setting.TILE_SIZE),
+													 (self.gridLeftBound + setting.TILE_SIZE * 3, self.gridTopBound))
 
 board = [['0', '0', '0', '0', '0', '0'],
 		 ['0', 'S', '0', 'B', 'P', '0'],
