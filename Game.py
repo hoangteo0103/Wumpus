@@ -240,6 +240,9 @@ class Game:
 
 		pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound, self.gridTopBound - setting.TILE_SIZE),
 													 (self.gridLeftBound + setting.TILE_SIZE * 3, self.gridTopBound - setting.TILE_SIZE))
+		pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound, self.gridTopBound),
+													 (self.gridLeftBound + setting.TILE_SIZE * 3, self.gridTopBound))
+		
 		pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound, self.gridTopBound - setting.TILE_SIZE),
 													 (self.gridLeftBound, self.gridTopBound))
 		pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound + setting.TILE_SIZE, self.gridTopBound - setting.TILE_SIZE),
