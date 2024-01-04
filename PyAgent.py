@@ -1,13 +1,13 @@
 class Agent:
     def __init__(self):
         self.__wumpusWorld = [
-                 ['','','P',''], # Rooms [1,1] to [4,1]
-                 ['','','',''], # Rooms [1,2] to [4,2] 
-                 ['W','','',''], # Rooms [1,3] to [4,3]
-                 ['','','',''],  # Rooms [1,4] to [4,4]
+                 ['','','P',''], # Rooms [1,1] to [10,1]
+                 ['','','',''], # Rooms [1,2] to [10,2] 
+                 ['W','','',''], # Rooms [1,3] to [10,3]
+                 ['','','',''],  # Rooms [1,10] to [10,10]
                 ] # This is the wumpus world shown in the assignment question.
                   # A different instance of the wumpus world will be used for evaluation.
-        self.__curLoc = [1,1]
+        self.__curLoc = [10,10]
         self.__isAlive = True
         self.__hasExited = False
 
@@ -42,11 +42,11 @@ class Agent:
         newLoc = []
         for v, inc in zip(self.__curLoc,move):
             z = v + inc #increment location index
-            z = 4 if z>4 else 1 if z<1 else z #Ensure that index is between 1 and 4
+            z = 10 if z>10 else 1 if z<1 else z #Ensure that index is between 1 and 10
             newLoc.append(z)
         self.__curLoc = newLoc
         print('Action Taken: {0}, Current Location {1}'.format(action,self.__curLoc))
-        if self.__curLoc[0]==4 and self.__curLoc[1]==4:
+        if self.__curLoc[0]==1 and self.__curLoc[1]==1:
             self.__hasExited=True
         return self.__CheckForPitWumpus()
     
@@ -59,7 +59,7 @@ class Agent:
             valid = True
             for v, inc in zip(cLoc,vM):
                 z = v + inc
-                if z<1 or z>4:
+                if z<1 or z>10:
                     valid = False
                     break
                 else:
