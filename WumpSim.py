@@ -247,6 +247,7 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
                             while newLocIndex != initLocIndex:
                                 listAction.append(pre[newLocIndex][0])
                                 newLocIndex = pre[newLocIndex][1]
+                            print(listAction[::-1])
                             for action in listAction[::-1]:
                                 ag.TakeAction(action)
                             visited[newLocIndex] = True
@@ -279,7 +280,7 @@ def ExitWumpusWorld(ag, kb):
             stenchClause[curLocIndex+100]=-1
         kb.AddClause(stenchClause) #presence/absence of stench
     
-        direction = [(-1,0), (0,1), (1,0), (0,-1)]
+        direction = [(0,-1), (1,0), (0,1), (-1,0)]
         
         isMove = MoveToUnvisited(ag, kb, visited)
 
@@ -304,6 +305,7 @@ def ExitWumpusWorld(ag, kb):
         if isMove == False:
             print('Agent can not decide where to go, current location: {0}'.format(ag.FindCurrentLocation()))
             break
+        print('\n')
 
 
 def main():
