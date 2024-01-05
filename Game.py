@@ -12,13 +12,15 @@ import Sensor
 from Action import *
 
 class Game:
-	def __init__(self, board):
+	def __init__(self, board, map):
 		pygame.init()
+		self.map = map
 		self.screen = pygame.display.set_mode((setting.WIDTH, setting.HEIGHT))
 		pygame.display.set_caption('Wumpus project - SID: 21125020 - 21125161 - 21125027 - 21125171')
 		self.clock = pygame.time.Clock()
 		self.nRow = len(board)
 		self.nCol = len(board[0])
+		self.output = []
 		self.board = board
 		self.gridTopBound = int(setting.HEIGHT / 2 - self.nRow * setting.TILE_SIZE / 2)
 		self.gridLeftBound = int(setting.WIDTH / 2 - self.nCol * setting.TILE_SIZE / 2)
@@ -202,10 +204,14 @@ class Game:
 			if action > self.agent.faceDirection:
 				for i in range(action - self.agent.faceDirection):
 					self.agentRotateRight()
+					self.output.append("RIGHT")
 			else:
 				for i in range(self.agent.faceDirection - action):
 					self.agentRotateLeft()
+					self.output.append("LEFT")
+
 			self.agentMoveForward()
+			self.output.append("FORWARD")
 		
 	def update(self):
 		self.allSprites.update()
@@ -254,6 +260,12 @@ class Game:
 		pygame.display.flip()
 
 	def quit(self):
+		file_path = self.map.replace(".txt", "_output.txt")
+		# Open the file in write mode
+		with open(file_path, "w") as file:
+			# Use a for loop to write each string to the file
+			for string in self.output:
+				file.write(string + "\n")
 		self.running = False
 
 	def drawGrid(self):

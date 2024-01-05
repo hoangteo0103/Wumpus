@@ -130,7 +130,7 @@ def main():
     
     # kb = WumpSim.KnowledgeBase()
 
-    game = Game(agent.wumpusWorld)
+    game = Game(agent.wumpusWorld, menu.map)
     game.run(ExitWumpusWorld, agent , kb)
 
 
