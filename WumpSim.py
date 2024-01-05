@@ -211,9 +211,11 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
 
     pre = [(-1, -1) for i in range(100)] 
 
-    direction = [(-1,0), (0,1), (1,0), (0,-1)]
+    direction = [(0,-1), (1,0), (0,1), (-1,0)]
 
     qu = queue.Queue()
+    while qu.empty() == False:
+        qu.get()
     qu.put(initLoc)
 
     while qu.empty() == False:
@@ -244,9 +246,9 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
                             while newLocIndex != initLocIndex:
                                 listAction.append(pre[newLocIndex][0])
                                 newLocIndex = pre[newLocIndex][1]
-
                             for action in listAction[::-1]:
                                 ag.TakeAction(action)
+                            visited[newLocIndex] = True
                             return True
 
     return False
@@ -258,7 +260,6 @@ def ExitWumpusWorld(ag, kb):
         print('Percept',ag.PerceiveCurrentLocation())
 
         curPos = ag.FindCurrentLocation()
-        print(curPos)
         curLocIndex= 10*(curPos[0]-1)+ curPos[1]-1
         visited[curLocIndex]=True
         
@@ -300,7 +301,8 @@ def ExitWumpusWorld(ag, kb):
                             break
         
         if isMove == False:
-            ag.TakeAction(LEFT)
+            print('Agent can not decide where to go, current location: {0}'.format(ag.FindCurrentLocation()))
+            break
 
 
 def main():

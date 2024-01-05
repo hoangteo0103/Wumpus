@@ -1,14 +1,5 @@
 from Action import *
 class Agent:
-    def __init__(self):
-        self.__curLoc = [1,1]
-        self.__isAlive = True
-        self.__hasExited = False
-        self.__direction = RIGHT
-        self.__wumpusWorld = [['-' for _ in range(10)] for _ in range(10)]
-        self.score = 0
-        self.percept = {'breeze':False,'stench':False, 'bump':False, 'scream':False}
-
     def loadFile(self, input_file):
         with open(input_file, 'r') as file:
             lines = file.read().splitlines()
@@ -30,6 +21,16 @@ class Agent:
                     self.__curLoc = [i+1, j+1]
         self.__wumpusWorld = game_map
 
+    def __init__(self):
+        self.__curLoc = [1,1]
+        self.__isAlive = True
+        self.__hasExited = False
+        self.__direction = RIGHT
+        self.__wumpusWorld = [['-' for _ in range(10)] for _ in range(10)]
+        self.score = 0
+        self.percept = {'breeze':False,'stench':False, 'bump':False, 'scream':False}
+        self.loadFile('map1.txt')
+
     def __CheckForPitWumpus(self):
         ww = self.__wumpusWorld
         i,j = self.__curLoc[0]-1,self.__curLoc[1]-1
@@ -40,7 +41,7 @@ class Agent:
 
     def TakeAction(self,action): # The function takes an action and returns whether the Agent is alive
                                 # after taking the action.
-        # validActions = ['Up', 'Down' , 'Left','Right','Shoot']
+        validActions = ['Left', 'Down', 'Right', 'Up', 'Shoot']
         # assert action in validActions, 'Invalid Action.'
         if self.__isAlive == False:
             print('Action cannot be performed. Agent is DEAD. Location:{0}'.format(self.__curLoc))
@@ -51,26 +52,26 @@ class Agent:
         ww = self.__wumpusWorld
         if action == SHOOT:
             self.score -= 100
-            print('Agent has shot an arrow.')
+            print('Agent has shot an arrow, direction: {0}'.format(validActions[self.__direction]))
 
             if self.__direction == UP:
-                if ww[self.__curLoc[0]-1][self.__curLoc[1]-1 - 1 ] == 'W':
-                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1] = '-'
+                if ww[self.__curLoc[0]-1-1][self.__curLoc[1]-1] == 'W':
+                    self.__wumpusWorld[self.__curLoc[0]-1-1][self.__curLoc[1]-1] = '-'
                     self.percept['scream'] = True
                     print('Wumpus killed.')
             if self.__direction == DOWN:
-                if ww[self.__curLoc[0]-1][self.__curLoc[1]-1 + 1 ] == 'W':
-                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1] = '-'
+                if ww[self.__curLoc[0]-1+1][self.__curLoc[1]-1] == 'W':
+                    self.__wumpusWorld[self.__curLoc[0]-1+1][self.__curLoc[1]-1] = '-'
                     self.percept['scream'] = True
                     print('Wumpus killed.')
             if self.__direction == LEFT:
-                if ww[self.__curLoc[0]-1 - 1][self.__curLoc[1]-1 ] == 'W':
-                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1] = '-'
+                if ww[self.__curLoc[0]-1][self.__curLoc[1]-1-1] == 'W':
+                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1-1] = '-'
                     self.percept['scream'] = True
                     print('Wumpus killed.')
             if self.__direction == RIGHT:
-                if ww[self.__curLoc[0]-1 + 1][self.__curLoc[1]-1 ] == 'W':
-                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1] = '-'
+                if ww[self.__curLoc[0]-1][self.__curLoc[1]-1+1] == 'W':
+                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1+1] = '-'
                     self.percept['scream'] = True
                     print('Wumpus killed.')
 
@@ -82,6 +83,7 @@ class Agent:
                 print('Agent has bumped into a wall.')
             else:
                 self.__curLoc[0] -= 1
+                print('Agent move up to {0}.'.format(self.__curLoc))
         if action == DOWN:
             self.score -= 10
             self.__direction = DOWN
@@ -90,6 +92,7 @@ class Agent:
                 print('Agent has bumped into a wall.')
             else:
                 self.__curLoc[0] += 1
+                print('Agent move down to {0}.'.format(self.__curLoc))
         if action == LEFT:
             self.score -= 10
             self.__direction = LEFT
@@ -98,6 +101,7 @@ class Agent:
                 print('Agent has bumped into a wall.')
             else:
                 self.__curLoc[1] -= 1
+                print('Agent move left to {0}.'.format(self.__curLoc))
         if action == RIGHT:
             self.score -= 10
             self.__direction = RIGHT
@@ -106,6 +110,7 @@ class Agent:
                 print('Agent has bumped into a wall.')
             else:
                 self.__curLoc[1] += 1
+                print('Agent move right to {0}.'.format(self.__curLoc))
 
         if self.__curLoc == [10,1]:
             self.__hasExited = True
