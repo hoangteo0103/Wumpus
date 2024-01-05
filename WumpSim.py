@@ -253,7 +253,7 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
 
 def ExitWumpusWorld(ag, kb):
     visited = [False for i in range(100)] #Rooms Visited till now 
-    while(ag.__hasExited == False and ag.__isAlive):
+    while(ag.GetStatus()[0] == True and ag.GetStatus()[1] == False):
         percept= ag.PerceiveCurrentLocation() 
         print('Percept',ag.PerceiveCurrentLocation())
 
