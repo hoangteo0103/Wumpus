@@ -1,9 +1,11 @@
-from Game import * 
-import PyAgent 
+from Game import *
+import PyAgent
+import WumpSim
 from WumpSim import *
 import copy
 import queue 
 from Action import *
+from menu import *
 
 
 def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
@@ -112,13 +114,15 @@ def ExitWumpusWorld(ag, kb):
 
 
 def main():
-    agent = PyAgent.Agent()
-    kb = WumpSim.KnowledgeBase()
+    menu = Menu()
+    menu.run()
+    agent = PyAgent.Agent(menu.map)
+    # kb = WumpSim.KnowledgeBase()
 
     game = Game(agent.wumpusWorld)
 
     game.run()
-    ExitWumpusWorld(game, agent, kb)
+    # ExitWumpusWorld(game, agent, kb)
 
 
 if __name__ == '__main__':

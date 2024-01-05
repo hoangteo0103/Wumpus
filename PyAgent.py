@@ -21,7 +21,7 @@ class Agent:
                     self.__curLoc = [i+1, j+1]
         self.wumpusWorld = game_map
 
-    def __init__(self):
+    def __init__(self, input_file):
         self.__curLoc = [1,1]
         self.__isAlive = True
         self.__hasExited = False
@@ -29,7 +29,8 @@ class Agent:
         self.wumpusWorld = [['-' for _ in range(10)] for _ in range(10)]
         self.score = 0
         self.percept = {'breeze':False,'stench':False, 'bump':False, 'scream':False}
-        self.loadFile('map1.txt')
+        self.loadFile(input_file)
+        print("Load map 1")
 
     def __CheckForPitWumpus(self):
         ww = self.wumpusWorld
