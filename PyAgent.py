@@ -30,7 +30,6 @@ class Agent:
         self.score = 0
         self.percept = {'breeze':False,'stench':False, 'bump':False, 'scream':False}
         self.loadFile(input_file)
-        print("Load map 1")
 
     def __CheckForPitWumpus(self):
         ww = self.wumpusWorld
