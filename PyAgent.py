@@ -40,8 +40,8 @@ class Agent:
 
     def TakeAction(self,action): # The function takes an action and returns whether the Agent is alive
                                 # after taking the action.
-        validActions = ['Up', 'Down' , 'Left','Right','Shoot']
-        assert action in validActions, 'Invalid Action.'
+        # validActions = ['Up', 'Down' , 'Left','Right','Shoot']
+        # assert action in validActions, 'Invalid Action.'
         if self.__isAlive == False:
             print('Action cannot be performed. Agent is DEAD. Location:{0}'.format(self.__curLoc))
             return False
