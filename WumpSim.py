@@ -202,21 +202,19 @@ def DPLLSatisfiable(clauses):
     model={}
     return DPLL(clauses, symbols, model)
 
-def MoveToUnvisited(ag, visited, goalLocIndex): #dfs to new safe room
+def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
     initLoc=ag.FindCurrentLocation()
     initLocIndex= 10*(initLoc[0]-1)+initLoc[1]-1
-    
-    goalLoc = [goalLocIndex // 10 + 1, goalLocIndex % 10 + 1]
 
     bfsVisited = [False for i in range(100)] 
-    bfsVisited[goalLocIndex]=True
+    bfsVisited[initLocIndex]=True
 
-    pre = [-1 for i in range(100)] 
+    pre = [(-1, -1) for i in range(100)] 
 
     direction = [(-1,0), (0,1), (1,0), (0,-1)]
 
     qu = queue.Queue()
-    qu.put(goalLoc)
+    qu.put(initLoc)
 
     while qu.empty() == False:
         curLoc = qu.get()
@@ -226,21 +224,32 @@ def MoveToUnvisited(ag, visited, goalLocIndex): #dfs to new safe room
             newLoc= [curLoc[0]+direction[i][0], curLoc[1]+direction[i][1]]
             if newLoc[0]>0 and newLoc[0]<=10 and newLoc[1]>0 and newLoc[1]<=10:
                 newLocIndex= 10*(newLoc[0]-1)+ newLoc[1]-1
-                if (visited[newLocIndex]==True or (newLocIndex)==goalLoc) and bfsVisited[newLocIndex]==False:
-                    qu.put(newLoc)
-                    bfsVisited[newLocIndex]==True
-                    pre[newLocIndex] = (i + 2) % 4
-        if bfsVisited[initLocIndex] == True:
-            break
+                if bfsVisited[newLocIndex]==False:
+                    if visited[newLocIndex]==True:
+                        qu.put(newLoc)
+                        bfsVisited[newLocIndex]==True
+                        pre[newLocIndex] = (i, curLocIndex)
+                    else:
+                        tempclauses= kb.getclauses()
+                        tempclauses.append({newLocIndex:1, newLocIndex+100*2:1})
+                        if DPLLSatisfiable(tempclauses)==False:
+                            #Room is safe
+                            noWumpus={newLocIndex:-1}
+                            noPit={newLocIndex+100*2:-1}
+                            kb.AddClause(noWumpus)
+                            kb.AddClause(noPit)
 
-    if bfsVisited[initLocIndex] == False:
-        return False
-    
-    while ag.FindCurrentLocation() != goalLoc:
-        curLoc = ag.FindCurrentLocation()
-        curLocIndex= 10*(curLoc[0]-1)+curLoc[1]-1
-        ag.TakeAction(pre[curLocIndex])
-    return True
+                            pre[newLocIndex] = (i, curLocIndex)
+                            listAction = []
+                            while newLocIndex != initLocIndex:
+                                listAction.append(pre[newLocIndex][0])
+                                newLocIndex = pre[newLocIndex][1]
+
+                            for action in listAction[::-1]:
+                                ag.TakeAction(action)
+                            return True
+
+    return False
 
 def ExitWumpusWorld(ag, kb):
     visited = [False for i in range(100)] #Rooms Visited till now 
@@ -269,46 +278,9 @@ def ExitWumpusWorld(ag, kb):
         kb.AddClause(stenchClause) #presence/absence of stench
     
         direction = [(-1,0), (0,1), (1,0), (0,-1)]
-
-        isMove = False
-
-        for i in range(4): 
-            newLoc= [curPos[0]+direction[i][0], curPos[1]+direction[i][1]]
-            if newLoc[0]>0 and newLoc[0]<=10 and newLoc[1]>0 and newLoc[1]<=10:
-                newLocIndex= 10*(newLoc[0]-1)+ newLoc[1]-1
-                if visited[newLocIndex]==False:
-                    tempclauses= kb.getclauses()
-                    tempclauses.append({newLocIndex:1, newLocIndex+100*2:1})
-                    if DPLLSatisfiable(tempclauses)==False:
-                        #Room is safe
-                        noWumpus={newLocIndex:-1}
-                        noPit={newLocIndex+100*2:-1}
-                        kb.AddClause(noWumpus)
-                        kb.AddClause(noPit)
-                        ag.TakeAction(3 - i)
-                        isMove = True
-                        break
         
-        if isMove:
-            continue
+        isMove = MoveToUnvisited(ag, kb, visited)
 
-        for newLoc in range(100):
-            if visited[newLoc]==False:
-                tempclauses= kb.getclauses()
-                checkClause={newLoc:1, newLoc+100*2:1}  
-                tempclauses.append(checkClause)
-                if DPLLSatisfiable(tempclauses)==False:
-                    #Room is safe
-                    noWumpus={newLoc:-1}
-                    noPit={newLoc+100*2:-1}
-                    kb.AddClause(noWumpus)
-                    kb.AddClause(noPit)
-                    
-                    roomReachable=MoveToUnvisited(ag, visited, newLoc) #dfs to new safe Room
-                    if roomReachable:
-                        isMove = True
-                        break
-        
         if isMove == False:
             for i in range(4):
                 newLoc= [curPos[0]+direction[i][0], curPos[1]+direction[i][1]]
@@ -323,7 +295,7 @@ def ExitWumpusWorld(ag, kb):
                             noPit={newLocIndex+100*2:-1}
                             kb.AddClause(noWumpus)
                             kb.AddClause(noPit)
-                            ag.TakeAction(3 - i)
+                            ag.TakeAction(i)
                             isMove = True
                             break
         
