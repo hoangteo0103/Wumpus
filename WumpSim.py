@@ -235,7 +235,7 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
                         tempclauses= kb.getclauses()
                         tempclauses.append({newLocIndex:1, newLocIndex+100*2:1})
                         if DPLLSatisfiable(tempclauses)==False:
-                            print('I choose {0} to visit.'.format(newLoc))
+                            print('Choose {0} to visit.'.format(newLoc))
                             #Room is safe
                             noWumpus={newLocIndex:-1}
                             noPit={newLocIndex+100*2:-1}
@@ -245,10 +245,8 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
                             pre[newLocIndex] = (i, curLocIndex)
                             listAction = []
                             while newLocIndex != initLocIndex:
-                                print(newLocIndex // 10 + 1, newLocIndex % 10 + 1)
                                 listAction.append(pre[newLocIndex][0])
                                 newLocIndex = pre[newLocIndex][1]
-                            print(listAction[::-1])
                             for action in listAction[::-1]:
                                 ag.TakeAction(action)
                             visited[newLocIndex] = True
@@ -315,6 +313,7 @@ def main():
     print('Start Location: {0}'.format(ag.FindCurrentLocation()))
     ExitWumpusWorld(ag, kb)
     print('{0} reached. Exiting the Wumpus World.'.format(ag.FindCurrentLocation()))
+    print('Total score: {0}'.format(ag.score))
     print('Total number of times DPLL function is called: {0}'.format(numberOfCalls))
 
 
