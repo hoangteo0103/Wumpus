@@ -212,6 +212,7 @@ class Game:
 
 			self.agentMoveForward()
 			self.output.append("FORWARD")
+			self.update()
 		
 	def update(self):
 		self.allSprites.update()
