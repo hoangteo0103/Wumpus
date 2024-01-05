@@ -209,32 +209,32 @@ def MoveToUnvisited(ag, visited, goalLoc, dfsVisited): #dfs to new safe room
     dfsVisited[curLoc]=True
     
     if curPos[1]+1 <=10 and (visited[curLoc+1]==True or (curLoc+1)==goalLoc) and dfsVisited[curLoc+1]==False:
-        ag.TakeAction('Up')
+        ag.TakeAction(3)
         roomReachable= MoveToUnvisited(ag, visited, goalLoc, dfsVisited)
         if roomReachable:
             return True
-        ag.TakeAction('Down')
+        ag.TakeAction(1)
 
     if curPos[0]+1 <=10 and (visited[curLoc+10]==True or (curLoc+10)==goalLoc) and dfsVisited[curLoc+10]==False:
-        ag.TakeAction('Right')
+        ag.TakeAction(2)
         roomReachable= MoveToUnvisited(ag, visited, goalLoc, dfsVisited)
         if roomReachable:
             return True
-        ag.TakeAction('Left')
+        ag.TakeAction(0)
 
     if curPos[0]-1 >0 and (visited[curLoc-10]==True or (curLoc-10)==goalLoc) and dfsVisited[curLoc-10]==False:
-        ag.TakeAction('Left')
+        ag.TakeAction(0)
         roomReachable= MoveToUnvisited(ag, visited, goalLoc, dfsVisited)
         if roomReachable:
             return True
-        ag.TakeAction('Right')
+        ag.TakeAction(2)
 
     if curPos[1]-1 >0 and (visited[curLoc-1]==True or (curLoc-1)==goalLoc) and dfsVisited[curLoc-1]==False:
-        ag.TakeAction('Down')
+        ag.TakeAction(1)
         roomReachable= MoveToUnvisited(ag, visited, goalLoc, dfsVisited)
         if roomReachable:
             return True
-        ag.TakeAction('Up')
+        ag.TakeAction(3)
 
     return False
 
@@ -265,6 +265,7 @@ def ExitWumpusWorld(ag, kb):
     
         direction = [(-1,0), (0,-1), (1,0), (0,1)]
 
+        isMove = False
 
         for i in range(4): 
             newLoc= [curPos[0]+direction[i][0], curPos[1]+direction[i][1]]
@@ -280,6 +281,11 @@ def ExitWumpusWorld(ag, kb):
                         kb.AddClause(noWumpus)
                         kb.AddClause(noPit)
                         ag.TakeAction(3 - i)
+                        isMove = True
+                        break
+        
+        if isMove:
+            continue
 
         for newLoc in range(100):
             if visited[newLoc]==False:
@@ -295,7 +301,30 @@ def ExitWumpusWorld(ag, kb):
                     dfsVisited = [False for i in range(100)] 
                     roomReachable=MoveToUnvisited(ag, visited, newLoc, dfsVisited) #dfs to new safe Room
                     if roomReachable:
+                        isMove = True
                         break
+        
+        if isMove == False:
+            for i in range(4):
+                newLoc= [curPos[0]+direction[i][0], curPos[1]+direction[i][1]]
+                if newLoc[0]>0 and newLoc[0]<=10 and newLoc[1]>0 and newLoc[1]<=10:
+                    newLocIndex= 10*(newLoc[0]-1)+ newLoc[1]-1
+                    if visited[newLocIndex]==False:
+                        ag.TurnDirection(i)
+                        ag.TakeAction(4)
+                        curpercept = ag.CurrentPercept()
+                        if curpercept['scream'] == True:
+                            noWumpus={newLocIndex:-1}
+                            noPit={newLocIndex+100*2:-1}
+                            kb.AddClause(noWumpus)
+                            kb.AddClause(noPit)
+                            ag.TakeAction(3 - i)
+                            isMove = True
+                            break
+        
+        if isMove == False:
+            ag.TakeAction(0)
+
 
 def main():
     ag = Agent()

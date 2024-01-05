@@ -49,7 +49,7 @@ class Agent:
             print('Action cannot be performed. Agent has exited the Wumpus world.'.format(self.__curLoc))
             return False
         ww = self.__wumpusWorld
-        if action == 'Shoot':
+        if action == SHOOT:
             self.score -= 100
             print('Agent has shot an arrow.')
 
@@ -152,6 +152,8 @@ class Agent:
                 self.percept['breeze'] = True
             if 'W' in ww[i][j]:
                 self.percept['stench'] = True
+        self.percept['bump'] = False
+        self.percept['scream'] = False
         return self.percept
     
     def CurrentPercept(self):
@@ -161,6 +163,8 @@ class Agent:
         return self.__curLoc
     def FindCurrentDirection(self):
         return self.__direction
+    def TurnDirection(self, direction):
+        self.__direction = direction
 
 def main():
     ag = Agent()
