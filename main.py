@@ -8,7 +8,8 @@ from Action import *
 from menu import *
 
 
-def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
+def MoveToUnvisited(actions, ag, kb, visited): #dfs to new safe room
+
     initLoc=ag.FindCurrentLocation()
     initLocIndex= 10*(initLoc[0]-1)+initLoc[1]-1
 
@@ -55,74 +56,83 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
                                 newLocIndex = pre[newLocIndex][1]
                             for action in listAction[::-1]:
                                 ag.TakeAction(action)
+                                actions.append(action)
                             visited[newLocIndex] = True
                             return True
 
     return False
 
 def ExitWumpusWorld(ag, kb):
-    visited = [False for i in range(100)] #Rooms Visited till now 
-    while(ag.GetStatus()[0] == True and ag.GetStatus()[1] == False):
-        percept= ag.PerceiveCurrentLocation() 
-        print('Percept',percept)
+    percept= ag.PerceiveCurrentLocation() 
+    print('Percept',percept)
 
-        curPos = ag.FindCurrentLocation()
-        curLocIndex= 10*(curPos[0]-1)+ curPos[1]-1
-        visited[curLocIndex]=True
-        
-        breezeClause={}
-        stenchClause={}
-
-        if percept['breeze']==True: #breeze
-            breezeClause[curLocIndex+100*3]=1
-        else:
-            breezeClause[curLocIndex+100*3]=-1
-        kb.AddClause(breezeClause) #presence/absence of breeze
-
-        if percept['stench']==True: #stench
-            stenchClause[curLocIndex+100]=1
-        else:
-            stenchClause[curLocIndex+100]=-1
-        kb.AddClause(stenchClause) #presence/absence of stench
+    curPos = ag.FindCurrentLocation()
+    curLocIndex= 10*(curPos[0]-1)+ curPos[1]-1
+    visited[curLocIndex]=True
     
-        direction = [(0,-1), (1,0), (0,1), (-1,0)]
-        
-        isMove = MoveToUnvisited(ag, kb, visited)
+    breezeClause={}
+    stenchClause={}
+    actions = []
 
-        if isMove == False:
-            for i in range(4):
-                newLoc= [curPos[0]+direction[i][0], curPos[1]+direction[i][1]]
-                if newLoc[0]>0 and newLoc[0]<=10 and newLoc[1]>0 and newLoc[1]<=10:
-                    newLocIndex= 10*(newLoc[0]-1)+ newLoc[1]-1
-                    if visited[newLocIndex]==False:
-                        ag.TurnDirection(i)
-                        ag.TakeAction(SHOOT)
-                        curpercept = ag.CurrentPercept()
-                        if curpercept['scream'] == True:
-                            noWumpus={newLocIndex:-1}
-                            noPit={newLocIndex+100*2:-1}
-                            kb.AddClause(noWumpus)
-                            kb.AddClause(noPit)
-                            ag.TakeAction(i)
-                            isMove = True
-                            break
-        
-        if isMove == False:
-            print('Agent can not decide where to go, current location: {0}'.format(ag.FindCurrentLocation()))
-            break
-        print('\n')
+    if percept['breeze']==True: #breeze
+        breezeClause[curLocIndex+100*3]=1
+    else:
+        breezeClause[curLocIndex+100*3]=-1
+    kb.AddClause(breezeClause) #presence/absence of breeze
+
+    if percept['stench']==True: #stench
+        stenchClause[curLocIndex+100]=1
+    else:
+        stenchClause[curLocIndex+100]=-1
+    kb.AddClause(stenchClause) #presence/absence of stench
+
+    direction = [(0,-1), (1,0), (0,1), (-1,0)]
+    
+    isMove = MoveToUnvisited(actions, ag, kb, visited)
+
+    if isMove == False:
+        for i in range(4):
+            newLoc= [curPos[0]+direction[i][0], curPos[1]+direction[i][1]]
+            if newLoc[0]>0 and newLoc[0]<=10 and newLoc[1]>0 and newLoc[1]<=10:
+                newLocIndex= 10*(newLoc[0]-1)+ newLoc[1]-1
+                if visited[newLocIndex]==False:
+                    ag.TurnDirection(i)
+                    ag.TakeAction(SHOOT)
+                    actions.append(SHOOT)
+                    curpercept = ag.CurrentPercept()
+                    if curpercept['scream'] == True:
+                        noWumpus={newLocIndex:-1}
+                        noPit={newLocIndex+100*2:-1}
+                        kb.AddClause(noWumpus)
+                        kb.AddClause(noPit)
+                        actions.append(i)
+                        ag.TakeAction(i)
+                        isMove = True
+                        break
+    
+    if len(actions) > 0:
+        t =  actions
+        actions = []
+        return t 
+    
+    print('Agent can not decide where to go, current location: {0}'.format(ag.FindCurrentLocation()))
+    print('\n')
+    return actions
 
 
 def main():
     menu = Menu()
     menu.run()
     agent = PyAgent.Agent(menu.map)
+    kb = KnowledgeBase(agent.FindCurrentLocation()[0], agent.FindCurrentLocation()[1])
+    global visited 
+    visited = [False for i in range(100)] 
+    
     # kb = WumpSim.KnowledgeBase()
 
     game = Game(agent.wumpusWorld)
+    game.run(ExitWumpusWorld, agent , kb)
 
-    game.run()
-    # ExitWumpusWorld(game, agent, kb)
 
 
 if __name__ == '__main__':
