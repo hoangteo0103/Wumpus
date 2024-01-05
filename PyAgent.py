@@ -151,11 +151,13 @@ class Agent:
             return [None,None]
 
         adjRooms = self.__FindAdjacentRooms()
+        self.percept['breeze'] = False
+        self.percept['stench'] = False
         for room in adjRooms:
             i,j = room[0]-1,room[1]-1
-            if 'P' in ww[i][j]:
+            if ww[i][j] == 'P':
                 self.percept['breeze'] = True
-            if 'W' in ww[i][j]:
+            if ww[i][j] == 'W':
                 self.percept['stench'] = True
         self.percept['bump'] = False
         self.percept['scream'] = False

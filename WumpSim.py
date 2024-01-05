@@ -235,6 +235,7 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
                         tempclauses= kb.getclauses()
                         tempclauses.append({newLocIndex:1, newLocIndex+100*2:1})
                         if DPLLSatisfiable(tempclauses)==False:
+                            print('I choose {0} to visit.'.format(newLoc))
                             #Room is safe
                             noWumpus={newLocIndex:-1}
                             noPit={newLocIndex+100*2:-1}
@@ -257,7 +258,7 @@ def ExitWumpusWorld(ag, kb):
     visited = [False for i in range(100)] #Rooms Visited till now 
     while(ag.GetStatus()[0] == True and ag.GetStatus()[1] == False):
         percept= ag.PerceiveCurrentLocation() 
-        print('Percept',ag.PerceiveCurrentLocation())
+        print('Percept',percept)
 
         curPos = ag.FindCurrentLocation()
         curLocIndex= 10*(curPos[0]-1)+ curPos[1]-1
