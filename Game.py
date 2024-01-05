@@ -237,6 +237,9 @@ class Game:
 			self.totalPoint += setting.DIE_COST
 			self.quit()
 
+		if self.agent.curRow == self.nRow - 1 and self.agent.curCol == 0:
+			self.quit()
+
 	def draw(self):
 		# print("current points:", self.totalPoint)
 		self.screen.fill(setting.BACKGROUND_COLOR)
