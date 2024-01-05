@@ -183,7 +183,8 @@ class Game:
 
 	def events(self, actions):
 		print("HEY" , actions, self.agent.faceDirection)
-		for action in actions:
+		for action in reversed(actions):
+			old_action = action 
 			if action == None:
 				continue
 			if action == SHOOT:
@@ -197,19 +198,14 @@ class Game:
 				action = 1
 			elif action == UP:
 				action = 0
+			print("HEy1", action, old_action)
 			if action > self.agent.faceDirection:
 				for i in range(action - self.agent.faceDirection):
-					self.agentRotateLeft()
+					self.agentRotateRight()
 			else:
 				for i in range(self.agent.faceDirection - action):
-					self.agentRotateRight()
+					self.agentRotateLeft()
 			self.agentMoveForward()
-
-		if action == None:
-			return
-		if action == SHOOT:
-			self.agentShot()
-			return
 		
 	def update(self):
 		self.allSprites.update()

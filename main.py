@@ -73,6 +73,7 @@ def ExitWumpusWorld(ag, kb):
     breezeClause={}
     stenchClause={}
     actions = []
+
     if percept['breeze']==True: #breeze
         breezeClause[curLocIndex+100*3]=1
     else:
@@ -120,18 +121,19 @@ def ExitWumpusWorld(ag, kb):
 
 
 def main():
-    run = True
-    while run == True:		
-        menu = Menu()
-        menu.run()
-        agent = PyAgent.Agent(menu.map)
-        kb = KnowledgeBase(agent.FindCurrentLocation()[0], agent.FindCurrentLocation()[1])
-        global visited 
-        visited = [False for i in range(100)] 
-        
-        # kb = WumpSim.KnowledgeBase()
-        game = Game(agent.wumpusWorld)
-        game.run(ExitWumpusWorld, agent , kb)
+    menu = Menu()
+    menu.run()
+    agent = PyAgent.Agent(menu.map)
+    kb = KnowledgeBase(agent.FindCurrentLocation()[0], agent.FindCurrentLocation()[1])
+    global visited 
+    visited = [False for i in range(100)] 
+    
+    # kb = WumpSim.KnowledgeBase()
+
+    game = Game(agent.wumpusWorld)
+    game.run(ExitWumpusWorld, agent , kb)
+
+
 
 if __name__ == '__main__':
     main()
