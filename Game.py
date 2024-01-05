@@ -106,8 +106,18 @@ class Game:
 			self.draw()
 
 		print('total points:', self.totalPoint)
+		self.display_final_score()
+		pygame.time.delay(3000)
 		pygame.quit()
-
+		
+	def display_final_score(self):
+		self.screen.fill(setting.WHITE)
+		font = pygame.font.SysFont('Arial', 36)
+		text = font.render(f'Total Points: {self.totalPoint}', True, setting.BLACK)
+		text_rect = text.get_rect(center=(setting.WIDTH // 2, setting.HEIGHT // 2))
+		self.screen.blit(text, text_rect)
+		pygame.display.flip()
+        
 	def agentRotateLeft(self):
 		self.agent.rotateLeft()
 
