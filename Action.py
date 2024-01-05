@@ -3,14 +3,11 @@
 GOFORWARD = 0
 TURNLEFT = 1
 TURNRIGHT = 2
-GRAB = 3
-SHOOT = 4
-CLIMB = 5
+SHOOT = 3
 
 # Orientation.py
-
-RIGHT = 0
-UP = 1
-LEFT = 2
-DOWN = 3
+UP = 0 
+RIGHT = 1
+DOWN = 2
+LEFT = 3
 

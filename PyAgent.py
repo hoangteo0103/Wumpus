@@ -1,33 +1,46 @@
+from Action import *
 class Agent:
     def __init__(self):
-        self.__wumpusWorld = [
-                 ['','','P',''], # Rooms [1,1] to [10,1]
-                 ['','','',''], # Rooms [1,2] to [10,2] 
-                 ['W','','',''], # Rooms [1,3] to [10,3]
-                 ['','','',''],  # Rooms [1,10] to [10,10]
-                ] # This is the wumpus world shown in the assignment question.
-                  # A different instance of the wumpus world will be used for evaluation.
-        self.__curLoc = [10,10]
+        self.__curLoc = [1,1]
         self.__isAlive = True
         self.__hasExited = False
+        self.__direction = RIGHT
+        self.__wumpusWorld = [['-' for _ in range(10)] for _ in range(10)]
+        self.score = 0
+        self.percept = {'breeze':False,'stench':False, 'bump':False, 'scream':False}
 
-    def __FindIndicesForLocation(self,loc):
-        x,y = loc
-        i,j = y-1, x-1
-        return i,j
+    def loadFile(self, input_file):
+        with open(input_file, 'r') as file:
+            lines = file.read().splitlines()
+
+        # Extract map size and map data
+        map_size = int(lines[0])
+        map_data = lines[1:]
+
+        # Initialize the map with empty rooms
+        game_map = [['-' for _ in range(map_size)] for _ in range(map_size)]
+
+        # Update the map based on input data
+        for i in range(map_size):
+            room_info = map_data[i].split('.')
+            for j, info in enumerate(room_info):
+                if info != '-':
+                    game_map[i][j] = info
+                if info == 'A':
+                    self.__curLoc = [i+1, j+1]
+        self.__wumpusWorld = game_map
 
     def __CheckForPitWumpus(self):
         ww = self.__wumpusWorld
-        i,j = self.__FindIndicesForLocation(self.__curLoc)
+        i,j = self.__curLoc[0]-1,self.__curLoc[1]-1
         if 'P' in ww[i][j] or 'W' in ww[i][j]:
-            print(ww[i][j])
             self.__isAlive = False
             print('Agent is DEAD.')
         return self.__isAlive
 
     def TakeAction(self,action): # The function takes an action and returns whether the Agent is alive
                                 # after taking the action.
-        validActions = ['Up','Down','Left','Right']
+        validActions = ['Up', 'Down' , 'Left','Right','Shoot']
         assert action in validActions, 'Invalid Action.'
         if self.__isAlive == False:
             print('Action cannot be performed. Agent is DEAD. Location:{0}'.format(self.__curLoc))
@@ -35,19 +48,72 @@ class Agent:
         if self.__hasExited == True:
             print('Action cannot be performed. Agent has exited the Wumpus world.'.format(self.__curLoc))
             return False
+        ww = self.__wumpusWorld
+        if action == 'Shoot':
+            self.score -= 100
+            print('Agent has shot an arrow.')
 
-        index = validActions.index(action)
-        validMoves = [[0,1],[0,-1],[-1,0],[1,0]]
-        move = validMoves[index]
-        newLoc = []
-        for v, inc in zip(self.__curLoc,move):
-            z = v + inc #increment location index
-            z = 10 if z>10 else 1 if z<1 else z #Ensure that index is between 1 and 10
-            newLoc.append(z)
-        self.__curLoc = newLoc
-        print('Action Taken: {0}, Current Location {1}'.format(action,self.__curLoc))
-        if self.__curLoc[0]==1 and self.__curLoc[1]==1:
-            self.__hasExited=True
+            if self.__direction == UP:
+                if ww[self.__curLoc[0]-1][self.__curLoc[1]-1 - 1 ] == 'W':
+                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1] = '-'
+                    self.percept['scream'] = True
+                    print('Wumpus killed.')
+            if self.__direction == DOWN:
+                if ww[self.__curLoc[0]-1][self.__curLoc[1]-1 + 1 ] == 'W':
+                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1] = '-'
+                    self.percept['scream'] = True
+                    print('Wumpus killed.')
+            if self.__direction == LEFT:
+                if ww[self.__curLoc[0]-1 - 1][self.__curLoc[1]-1 ] == 'W':
+                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1] = '-'
+                    self.percept['scream'] = True
+                    print('Wumpus killed.')
+            if self.__direction == RIGHT:
+                if ww[self.__curLoc[0]-1 + 1][self.__curLoc[1]-1 ] == 'W':
+                    self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1] = '-'
+                    self.percept['scream'] = True
+                    print('Wumpus killed.')
+
+        if action == UP:
+            self.score -= 10
+            self.__direction = UP
+            if self.__curLoc[0] == 1:
+                self.percept['bump'] = True
+                print('Agent has bumped into a wall.')
+            else:
+                self.__curLoc[0] -= 1
+        if action == DOWN:
+            self.score -= 10
+            self.__direction = DOWN
+            if self.__curLoc[0] == 10:
+                self.percept['bump'] = True
+                print('Agent has bumped into a wall.')
+            else:
+                self.__curLoc[0] += 1
+        if action == LEFT:
+            self.score -= 10
+            self.__direction = LEFT
+            if self.__curLoc[1] == 1:
+                self.percept['bump'] = True
+                print('Agent has bumped into a wall.')
+            else:
+                self.__curLoc[1] -= 1
+        if action == RIGHT:
+            self.score -= 10
+            self.__direction = RIGHT
+            if self.__curLoc[1] == 10:
+                self.percept['bump'] = True
+                print('Agent has bumped into a wall.')
+            else:
+                self.__curLoc[1] += 1
+
+        if self.__curLoc == [1,1]:
+            self.__hasExited = True
+            print('Agent has exited the Wumpus World.')
+        if ww[self.__curLoc[0]-1][self.__curLoc[1]-1] == 'G':
+            self.score += 1000
+            print('Agent has found the Gold.')
+            self.__wumpusWorld[self.__curLoc[0]-1][self.__curLoc[1]-1] = '-'
         return self.__CheckForPitWumpus()
     
     def __FindAdjacentRooms(self):
@@ -71,7 +137,6 @@ class Agent:
         
     def PerceiveCurrentLocation(self): #This function perceives the current location. 
                                         #It tells whether breeze and stench are present in the current location.
-        breeze, stench = False, False
         ww = self.__wumpusWorld
         if self.__isAlive == False:
             print('Agent cannot perceive. Agent is DEAD. Location:{0}'.format(self.__curLoc))
@@ -82,15 +147,20 @@ class Agent:
 
         adjRooms = self.__FindAdjacentRooms()
         for room in adjRooms:
-            i,j = self.__FindIndicesForLocation(room)
+            i,j = room[0]-1,room[1]-1
             if 'P' in ww[i][j]:
-                breeze = True
+                self.percept['breeze'] = True
             if 'W' in ww[i][j]:
-                stench = True
-        return [breeze,stench]
+                self.percept['stench'] = True
+        return self.percept
+    
+    def CurrentPercept(self):
+        return self.percept
     
     def FindCurrentLocation(self):
         return self.__curLoc
+    def FindCurrentDirection(self):
+        return self.__direction
 
 def main():
     ag = Agent()

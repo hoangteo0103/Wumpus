@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from Agent import * # See the Agent.py file
+from PyAgent import * # See the Agent.py file
 import copy
 numberOfCalls=0
 
@@ -10,31 +10,14 @@ class KnowledgeBase:
     #values 100 to 199 represents S(1,1) to S(100,100)
     #values 200 to 299 represents P(1,1) to P(100,100)
     #values 300 to 399 represents B(1,1) to B(100,100)
-    def __init__(self):
+    def __init__(self, x , y):
         self.clauses= []
 
         #clauses for atleast 1 Wumpus and 1 Pit
         atleast1Wumpus= {}
-        atleast1Pit = {}
         for i in range (100):
             atleast1Wumpus[i]=1
-            atleast1Pit[i+100*2]=1
         self.clauses.append(atleast1Wumpus)
-        self.clauses.append(atleast1Pit)
-
-        #clauses for atmost 1 Wumpus and 1 Pit
-        for i in range(100):
-            for j in range(i+1, 100):
-                atmost1Wumpus={}
-                atmost1Pit={}
-                atmost1Wumpus[i]=-1
-                atmost1Wumpus[j]=-1
-                atmost1Pit[i+100*2]=-1
-                atmost1Pit[j+100*2]=-1
-                self.clauses.append(atmost1Wumpus)
-                self.clauses.append(atmost1Pit)
-
-        print(self.clauses)
 
         #Stench-Wumpus bijection clauses
         for i in range(100):
@@ -97,8 +80,8 @@ class KnowledgeBase:
             self.clauses.append(breezePitClause)
 
         #No wumpus and pit at [1, 1]
-        noWumpusStart={0:-1}
-        noPitStart={100*2:-1}
+        noWumpusStart={ (x-1) * 10 + y - 1 :-1}
+        noPitStart={ (x-1) * 10 + y -1 :-1}
         self.clauses.append(noWumpusStart)
         self.clauses.append(noPitStart)
 
@@ -258,27 +241,46 @@ def MoveToUnvisited(ag, visited, goalLoc, dfsVisited): #dfs to new safe room
 def ExitWumpusWorld(ag, kb):
     visited = [False for i in range(100)] #Rooms Visited till now 
     while(ag.FindCurrentLocation()!=[10, 10]):
-        percept= ag.PerceiveCurrentLocation()
+        percept= ag.PerceiveCurrentLocation() 
         print('Percept',ag.PerceiveCurrentLocation())
         curPos = ag.FindCurrentLocation()
         curLocIndex= 10*(curPos[0]-1)+ curPos[1]-1
+        curDirection= ag.FindCurrentDirection()
         visited[curLocIndex]=True
         
         breezeClause={}
         stenchClause={}
 
-        if percept[0]==True: #breeze
+        if percept['breeze']==True: #breeze
             breezeClause[curLocIndex+100*3]=1
         else:
             breezeClause[curLocIndex+100*3]=-1
         kb.AddClause(breezeClause) #presence/absence of breeze
 
-        if percept[1]==True: #stench
+        if percept['stench']==True: #stench
             stenchClause[curLocIndex+100]=1
         else:
             stenchClause[curLocIndex+100]=-1
         kb.AddClause(stenchClause) #presence/absence of stench
-            
+    
+        direction = [(-1,0), (0,-1), (1,0), (0,1)]
+
+
+        for i in range(4): 
+            newLoc= [curPos[0]+direction[i][0], curPos[1]+direction[i][1]]
+            if newLoc[0]>0 and newLoc[0]<=10 and newLoc[1]>0 and newLoc[1]<=10:
+                newLocIndex= 10*(newLoc[0]-1)+ newLoc[1]-1
+                if visited[newLocIndex]==False:
+                    tempclauses= kb.getclauses()
+                    tempclauses.append({newLocIndex:1, newLocIndex+100*2:1})
+                    if DPLLSatisfiable(tempclauses)==False:
+                        #Room is safe
+                        noWumpus={newLocIndex:-1}
+                        noPit={newLocIndex+100*2:-1}
+                        kb.AddClause(noWumpus)
+                        kb.AddClause(noPit)
+                        ag.TakeAction(3 - i)
+
         for newLoc in range(100):
             if visited[newLoc]==False:
                 tempclauses= kb.getclauses()
@@ -297,7 +299,7 @@ def ExitWumpusWorld(ag, kb):
 
 def main():
     ag = Agent()
-    kb= KnowledgeBase()
+    kb= KnowledgeBase(ag.FindCurrentLocation()[0], ag.FindCurrentLocation()[1])
     print('Start Location: {0}'.format(ag.FindCurrentLocation()))
     ExitWumpusWorld(ag, kb)
     print('{0} reached. Exiting the Wumpus World.'.format(ag.FindCurrentLocation()))
