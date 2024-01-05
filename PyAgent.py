@@ -145,10 +145,10 @@ class Agent:
         ww = self.wumpusWorld
         if self.__isAlive == False:
             print('Agent cannot perceive. Agent is DEAD. Location:{0}'.format(self.__curLoc))
-            return [None,None]
+            return self.percept
         if self.__hasExited == True:
             print('Agent cannot perceive. Agent has exited the Wumpus World.'.format(self.__curLoc))
-            return [None,None]
+            return self.percept
 
         adjRooms = self.__FindAdjacentRooms()
         self.percept['breeze'] = False

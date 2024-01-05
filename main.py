@@ -73,10 +73,6 @@ def ExitWumpusWorld(ag, kb):
     breezeClause={}
     stenchClause={}
     actions = []
-
-    if percept == None:
-        return 
-
     if percept['breeze']==True: #breeze
         breezeClause[curLocIndex+100*3]=1
     else:
