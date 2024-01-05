@@ -136,7 +136,7 @@ class Game:
 
 		if self.agent.moveForward():
 			self.totalPoint += setting.MOVE_COST
-
+		
 	def agentMoveBackward(self):
 		if self.agent.curRow == self.nRow - 1 and self.agent.curCol == 0 and self.agent.faceDirection == 0:
 			print("Climbed out")
@@ -264,6 +264,7 @@ class Game:
 		# Open the file in write mode
 		with open(file_path, "w") as file:
 			# Use a for loop to write each string to the file
+			file.write(str(self.totalPoint) + "\n")
 			for string in self.output:
 				file.write(string + "\n")
 		self.running = False
