@@ -182,20 +182,27 @@ class Game:
 		return False
 
 	def events(self, actions):
-
+		print("HEY" , actions, self.agent.faceDirection)
 		for action in actions:
 			if action == None:
 				continue
 			if action == SHOOT:
 				self.agentShot()
 				continue
-			action = (action + 1) % 4 
+			if action == LEFT:
+				action = 3
+			elif action == DOWN:
+				action = 2
+			elif action == RIGHT:
+				action = 1
+			elif action == UP:
+				action = 0
 			if action > self.agent.faceDirection:
 				for i in range(action - self.agent.faceDirection):
-					self.agentRotateRight()
+					self.agentRotateLeft()
 			else:
 				for i in range(self.agent.faceDirection - action):
-					self.agentRotateLeft()
+					self.agentRotateRight()
 			self.agentMoveForward()
 
 		if action == None:
