@@ -229,7 +229,7 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
                 if bfsVisited[newLocIndex]==False:
                     if visited[newLocIndex]==True:
                         qu.put(newLoc)
-                        bfsVisited[newLocIndex]==True
+                        bfsVisited[newLocIndex]=True
                         pre[newLocIndex] = (i, curLocIndex)
                     else:
                         tempclauses= kb.getclauses()
@@ -245,6 +245,7 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
                             pre[newLocIndex] = (i, curLocIndex)
                             listAction = []
                             while newLocIndex != initLocIndex:
+                                print(newLocIndex // 10 + 1, newLocIndex % 10 + 1)
                                 listAction.append(pre[newLocIndex][0])
                                 newLocIndex = pre[newLocIndex][1]
                             print(listAction[::-1])
