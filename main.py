@@ -49,10 +49,8 @@ def MoveToUnvisited(ag, kb, visited): #dfs to new safe room
                             pre[newLocIndex] = (i, curLocIndex)
                             listAction = []
                             while newLocIndex != initLocIndex:
-                                print(newLocIndex // 10 + 1, newLocIndex % 10 + 1)
                                 listAction.append(pre[newLocIndex][0])
                                 newLocIndex = pre[newLocIndex][1]
-                            print(listAction[::-1])
                             for action in listAction[::-1]:
                                 ag.TakeAction(action)
                             visited[newLocIndex] = True
