@@ -107,7 +107,7 @@ class Agent:
             else:
                 self.__curLoc[1] += 1
 
-        if self.__curLoc == [1,1]:
+        if self.__curLoc == [10,1]:
             self.__hasExited = True
             print('Agent has exited the Wumpus World.')
         if ww[self.__curLoc[0]-1][self.__curLoc[1]-1] == 'G':
@@ -165,6 +165,9 @@ class Agent:
         return self.__direction
     def TurnDirection(self, direction):
         self.__direction = direction
+
+    def GetStatus(self):
+        return (self.__isAlive, self.__hasExited)
 
 def main():
     ag = Agent()
