@@ -9,6 +9,7 @@ import Bullet
 import Exit
 import TextBox
 import Sensor
+from Action import *
 
 class Game:
 	def __init__(self, board):
@@ -95,11 +96,12 @@ class Game:
 		self.bullet = pygame.sprite.Group()
 
 
-	def run(self):
+	def run(self, func, agent, kb):
 		self.running = True
 		while self.running:
 			self.dt = self.clock.tick(setting.FPS) / 1000
-			self.events()
+			actions = func(agent, kb)
+			self.events(actions)
 			self.update()
 			self.draw()
 
@@ -169,22 +171,29 @@ class Game:
 				return True
 		return False
 
-	def events(self):
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				self.quit()
-			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_LEFT:
-					self.agentRotateLeft()
-				elif event.key == pygame.K_RIGHT:
-					self.agentRotateRight()
-				elif event.key == pygame.K_UP:
-					self.agentMoveForward()
-				elif event.key == pygame.K_DOWN:
-					self.agentMoveBackward()
-				elif event.key == pygame.K_x:
-					self.agentShot()
+	def events(self, actions):
 
+		for action in actions:
+			if action == None:
+				continue
+			if action == SHOOT:
+				self.agentShot()
+				continue
+			action = (action + 1) % 4 
+			if action > self.agent.faceDirection:
+				for i in range(action - self.agent.faceDirection):
+					self.agentRotateRight()
+			else:
+				for i in range(self.agent.faceDirection - action):
+					self.agentRotateLeft()
+			self.agentMoveForward()
+
+		if action == None:
+			return
+		if action == SHOOT:
+			self.agentShot()
+			return
+		
 	def update(self):
 		self.allSprites.update()
 		self.bullet.update()
@@ -249,17 +258,3 @@ class Game:
 													 (self.gridLeftBound + setting.TILE_SIZE, self.gridTopBound))
 		pygame.draw.line(self.screen, setting.BLACK, (self.gridLeftBound + setting.TILE_SIZE * 3, self.gridTopBound - setting.TILE_SIZE),
 													 (self.gridLeftBound + setting.TILE_SIZE * 3, self.gridTopBound))
-
-board = [['0', '0', '0', '0', '0', '0'],
-		 ['0', 'S', '0', 'B', 'P', '0'],
-		 ['0', 'W', 'SBG', 'P', 'B', '0'],
-		 ['0', 'S', '0', 'B', '0', '0'],
-		 ['0', 'A', 'B', 'P', 'B', '0'],
-		 ['0', '0', '0', '0', '0', '0']]
-
-# board = [['0', '0', '0'],
-# 		 ['A', '0', '0'],
-# 		 ['0', '0', '0']]
-
-game = Game(board)
-game.run()
