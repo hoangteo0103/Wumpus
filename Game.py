@@ -27,6 +27,7 @@ class Game:
 		self.gridBottomBound = self.gridTopBound + self.nRow * setting.TILE_SIZE
 		self.gridRightBound = self.gridLeftBound + self.nCol * setting.TILE_SIZE
 		self.moveDir = ((0, -1), (0, 1), (-1, 0), (1, 0))
+		print("BOARD HERE" , self.board)
 		
 		self.initData()
 
@@ -52,7 +53,7 @@ class Game:
 		self.totalPoint = 0
 		self.font = pygame.font.Font('fonts/Roboto-Regular.ttf', 20)
 		self.pointBox = TextBox.TextBox(f'score: {self.totalPoint}', self.font, self.gridLeftBound, self.gridTopBound - setting.TILE_SIZE)
-		
+
 		for i in range(self.nRow):
 			for j in range(self.nCol):
 				if len(self.board[i][j]) == 1:
@@ -79,6 +80,7 @@ class Game:
 				
 				if self.spriteBoard[i][j] != 0:
 					self.allSprites.add(self.spriteBoard[i][j])
+		print("WWTF2" , self.board[2][8])
 
 		self.agent = Agent.Agent(
 			self.nRow, self.nCol,
@@ -96,6 +98,7 @@ class Game:
 		self.perceptSprite.add(Sensor.Sensor(self.nRow, self.nCol, -1, 0))
 
 		self.bullet = pygame.sprite.Group()
+		print("NEW BOẢD" , self.board)
 
 
 	def run(self, func, agent, kb):
@@ -185,7 +188,7 @@ class Game:
 
 	def events(self, actions):
 		print("HEY" , actions, self.agent.faceDirection)
-		for action in reversed(actions):
+		for action in (actions):
 			old_action = action 
 			if action == None:
 				continue
@@ -209,9 +212,11 @@ class Game:
 				for i in range(self.agent.faceDirection - action):
 					self.agentRotateLeft()
 					self.output.append("LEFT")
-
+			print("EVENT OLD" , self.agent.curRow, self.agent.curCol)
 			self.agentMoveForward()
 			self.output.append("FORWARD")
+			print("EVENT NEW" , self.agent.curRow, self.agent.curCol)
+
 			self.update()
 		
 	def update(self):
@@ -230,19 +235,22 @@ class Game:
 		else:
 			self.wumpusPercept.setTransparency(setting.LOW_OPACITY)
 
+		print("HEEYYYY",self.agent.curRow, self.agent.curCol, self.board[self.agent.curRow][self.agent.curCol])
+		print("WWTF2" , self.board[2][8])
 
-		if self.board[self.agent.curRow][self.agent.curCol] == 'G':
+		if 'G' in self.board[self.agent.curRow][self.agent.curCol]:
 			print('pick up gold chess !!')
 			self.totalPoint += setting.CHESS_COST
-			self.board[self.agent.curRow][self.agent.curCol] = '0'
+			self.board[self.agent.curRow][self.agent.curCol] = '-'
+			self.allSprites.remove(self.spriteBoard[self.agent.curRow][self.agent.curCol])
 			self.spriteBoard[self.agent.curRow][self.agent.curCol].kill()
 
-		if self.board[self.agent.curRow][self.agent.curCol] == 'W':
+		if 'W' in self.board[self.agent.curRow][self.agent.curCol]:
 			print("killed by wumpus !!")
 			self.totalPoint += setting.DIE_COST
 			self.quit()
 
-		if self.board[self.agent.curRow][self.agent.curCol] == 'P':
+		if 'P' in self.board[self.agent.curRow][self.agent.curCol]:
 			print("killed by pit !!")
 			self.totalPoint += setting.DIE_COST
 			self.quit()
